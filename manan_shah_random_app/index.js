@@ -21,6 +21,7 @@ async function handleRequest(request) {
 
   let selectedVariantIdx = 0
 
+  // Check if user has already been served a page
   if(cookie && cookie.includes(`${cookieName}=variant0`)){
     selectedVariantIdx = 0
   } else if(cookie && cookie.includes(`${cookieName}=variant1`)){
@@ -30,12 +31,13 @@ async function handleRequest(request) {
     selectedVariantIdx = Math.random() < 0.5 ? 0 : 1;
   }
   
-  let variantResp = await fetch(urlListData[selectedVariantIdx].toString())
+  let variantResp = await fetch(urlListData[selectedVariantIdx])
   let variantHtml = await variantResp.text()
   let response = new Response(variantHtml)
   response.headers.set("Set-Cookie", `${cookieName}=variant${selectedVariantIdx}`)
   response.headers.set("content-type", "text/html")
 
+  // update the response
   return new HTMLRewriter()
   .on("*", new VariantRewriter("variant" + selectedVariantIdx)).transform(response)
 }
@@ -49,13 +51,17 @@ class VariantRewriter{
   element(element){
     let elementTag = element.tagName;
 
+    // personalize title of page
     if(elementTag === "title"){
       element.setInnerContent("Manan's " + this.variantName)
     }
+
+    // personalize popup title
     if(elementTag === "h1" && element.getAttribute("id") === "title"){
       element.setInnerContent("Manan's custom popup")
     }
 
+    // Change popup description based on variant
     if(elementTag === "p" && element.getAttribute("id") === "description"){
       if(this.variantName === "variant0"){
         element.setInnerContent("Click below to checkout my GitHub")
@@ -64,6 +70,7 @@ class VariantRewriter{
       }
     }
 
+    // Update link inside popup to redirect to LinkedIn or GitHub based on variant
     if(elementTag === "a" && element.getAttribute("id") === "url"){
       if(this.variantName === "variant0"){
         element.setInnerContent("Manan Shah's GitHub")
