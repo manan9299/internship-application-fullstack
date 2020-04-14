@@ -1,3 +1,7 @@
+## [Update] Challenge Completed
+
+[Link to Completed Assignment](https://manan_shah_random_app.manan-shah.workers.dev)
+
 # Cloudflare Workers Internship Application: Full-Stack
 
 ## What is it?
